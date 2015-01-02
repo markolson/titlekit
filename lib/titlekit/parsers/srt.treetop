@@ -68,6 +68,10 @@ grammar SRT
   end
 
   rule string
-    (!eol .)+
+    (!eol (. / unicode))+
+  end
+
+  rule unicode
+    ![\u{a0}] [\u0080-\u{10FFFF}]
   end
 end

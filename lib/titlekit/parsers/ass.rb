@@ -128,18 +128,25 @@ module Titlekit
     #
     # @param subtitles [Array<Hash>] The subtitle to export
     # @return [String] Proper UTF-8 ASS as a string
-    def self.export(subtitles)
+    def self.export(subtitles, o={})
+      options = {
+        'FontName' => 'Arial',
+        'Fontsize' => 16,
+        'Shadow' => 2,
+        'PlayResX' => 1280,
+        'PlayResY' => 720
+      }.merge(o)
       result = ''
 
-      result << "[Script Info]\nScriptType: v4.00+\n\n"
+      result << "[Script Info]\nScriptType: v4.00+\nPlayResX: #{options['PlayResX']}\nPlayResY: #{options['PlayResY']}\nCollisions: Normal\n\n"
       result << "[V4+ Styles]\nFormat: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding\n"
-      result << "Style: Default,Arial,16,&H00FFFFFF,&H00FFFFFF,&H40000000,&H40000000,0,0,0,0,100,100,0,0.00,1,3,0,2,20,20,20,1\n"
-      result << "Style: Top,Arial,16,&H00FFFFFF,&H00FFFFFF,&H40000000,&H40000000,0,0,0,0,100,100,0,0.00,1,3,0,8,20,20,20,1\n"
-      result << "Style: Middle,Arial,16,&H00FFFFFF,&H00FFFFFF,&H40000000,&H40000000,0,0,0,0,100,100,0,0.00,1,3,0,5,20,20,20,1\n"
+      result << "Style: Default,#{options['FontName']},#{options['Fontsize']},&H00FFFFFF,&H00FFFFFF,&H40000000,&H40000000,0,0,0,0,100,100,0,0.00,1,3,#{options['Shadow']},2,0,0,10,1\n"
+      result << "Style: Top,#{options['FontName']},#{options['Fontsize']},&H00FFFFFF,&H00FFFFFF,&H40000000,&H40000000,0,0,0,0,100,100,0,0.00,1,3,#{options['Shadow']},8,0,0,10,1\n"
+      result << "Style: Middle,#{options['FontName']},#{options['Fontsize']},&H00FFFFFF,&H00FFFFFF,&H40000000,&H40000000,0,0,0,0,100,100,0,0.00,1,3,#{options['Shadow']},5,0,0,10,1\n"
 
       DEFAULT_PALETTE.each do |color|
         processed_color = '&H00' + (color[4..5] + color[2..3] + color[0..1])
-        result << "Style: #{color},Arial,16,#{processed_color},#{processed_color},&H40000000,&H40000000,0,0,0,0,100,100,0,0.00,1,3,0,2,20,20,20,1\n"
+        result << "Style: #{color},#{options['FontName']},#{options['Fontsize']},#{processed_color},#{processed_color},&H40000000,&H40000000,0,0,0,0,100,100,0,0.00,1,3,#{options['Shadow']},2,20,20,20,1\n"
       end
 
       result << "\n" # Close styles section
@@ -157,7 +164,7 @@ module Titlekit
           '0000',  # MarginR
           '0000',  # MarginV
           '',# Effect
-          subtitle[:lines].gsub("\n", '\N')  # Text
+          subtitle[:lines].gsub("\n", '\N').gsub("\r", '')  # Text
         ]
 
         result << fields.join(',') + "\n"
